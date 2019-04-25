@@ -44,7 +44,6 @@ const KEY = "special-key"
 
 // getCode 根据时间查询号码列表
 func getCode(c echo.Context) error {
-
 	var list []*Code
 	for _, v := range codes {
 		list = append(list, v)
@@ -56,7 +55,7 @@ func getCode(c echo.Context) error {
 func getCodeByID(c echo.Context) error {
 	co, ok := codes[c.Param("id")]
 	if !ok {
-		return c.String(http.StatusBadRequest, "")
+		return c.String(http.StatusNotFound, "")
 	}
 	return c.String(http.StatusOK, co.Code)
 }
