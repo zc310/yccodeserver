@@ -1,0 +1,119 @@
+swagger: "2.0"
+info:
+  description: "方案导入接口,可以通过设置 api key `special-key` 来进行安全认证.\nJSON中汉字转义后输出，如`汉字` 输出`\"\\u6c49\\u5b57\"`"
+  version: "1.0.0"
+  title: "号码导入接口"
+  termsOfService: "http://www.82608000.com/"
+  contact:
+    email: "93672020@qq.com"
+
+host: "test.82608000.com"
+basePath: "/code/v1"
+tags:
+  - name: "code"
+    description: "关于号码格式更多信息"
+    externalDocs:
+      description: "号码格式说明"
+      url: "https://www.82608000.com/help/tzd/code.html"
+schemes:
+  - "http"
+paths:
+  /code:
+    get:
+      tags:
+        - "code"
+      summary: "获取方案"
+      description: "根据方案时间查询方案列表"
+      operationId: "code"
+      produces:
+        - "application/json"
+
+      responses:
+        200:
+          description: "操作成功"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Code"
+        401:
+          description: "API key 无效"
+      security:
+        - api_key: []
+  /code/{Id}:
+    get:
+      tags:
+        - "code"
+      summary: "按单号查询方案号码"
+      description: "返回投注号码"
+      operationId: "getCodeById"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "Id"
+          in: "path"
+          description: "方案编号"
+          required: true
+          type: "string"
+
+      responses:
+        200:
+          description: "操作成功"
+          schema:
+            type: "string"
+        401:
+          description: "API key 无效"
+        404:
+          description: "方案未找到"
+
+      security:
+        - api_key: []
+
+securityDefinitions:
+
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  Code:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "单号"
+      lot:
+        $ref: '#/definitions/Lot'
+      issue:
+        type: "string"
+        description: "期号"
+      count:
+        type: "integer"
+        description: "注数"
+      note:
+        type: "string"
+        description: "备注"
+      time:
+        type: "string"
+        format: "date-time"
+        description: "时间"
+
+
+  Lot:
+    type: string
+    description: "彩种"
+    enum:
+      - 竞彩足球
+      - 竞彩篮球
+      - 单场
+      - 胜负彩
+      - 任选九
+      - 半全场
+      - 进球彩
+      - 排列3
+      - 排列5
+      - 大乐透
+      - 七星彩
+
+externalDocs:
+  description: "查看更多信息"
+  url: "http://www.82608000.com"
