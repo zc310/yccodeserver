@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: "方案导入接口,可以通过设置 api key `special-key` 来进行安全认证.\nJSON中汉字转义后输出，如`汉字` 输出`\"\\u6c49\\u5b57\"`"
+  description: "测试环境需要`header`设置 `api_key` = `special-key` 来进行安全认证.\n\nJSON中汉字转义后输出，如`汉字` 输出`\"\\u6c49\\u5b57\"`\n\n\n测试服务端Go代码:github.com/zc310/yccodeserver"
   version: "1.0.0"
   title: "号码导入接口"
   termsOfService: "http://www.82608000.com/"
@@ -8,10 +8,10 @@ info:
     email: "93672020@qq.com"
 
 host: "test.82608000.com"
-basePath: "/code/v1"
+basePath: "/api/v1"
 tags:
   - name: "code"
-    description: "关于号码格式更多信息"
+    description: "号码导入"
     externalDocs:
       description: "号码格式说明"
       url: "https://www.82608000.com/help/tzd/code.html"
@@ -96,7 +96,15 @@ definitions:
         type: "string"
         format: "date-time"
         description: "时间"
-
+      add:
+        type: "boolean"
+        description: "追加投注(可选,大乐透专用)"
+      multi_issue:
+        type: "integer"
+        description: "多期(可选,默认1期)"
+      multiple:
+        type: "integer"
+        description: "倍数(可选,默认1倍)"
 
   Lot:
     type: string
