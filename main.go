@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -10,8 +11,8 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type (
@@ -37,6 +38,17 @@ type (
 		MultiIssue int `json:"multi_issue,omitempty"` //1
 		// Code 投注号码
 		Code string `json:"-"`
+	}
+
+	PrintNotificationRequest struct {
+		OrderNo     string `json:"orderNo"`
+		PrintTime   string `json:"printTime"`
+		NotifyCount int    `json:"notifyCount"`
+	}
+
+	PrintNotificationResponse struct {
+		Success bool   `json:"success"`
+		Message string `json:"message"`
 	}
 )
 
@@ -69,6 +81,32 @@ func getCodeByID(c echo.Context) error {
 	return c.String(http.StatusOK, co.Code)
 }
 
+// 处理打印通知的逻辑
+func handlePrintNotification(c echo.Context) error {
+	var req PrintNotificationRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, PrintNotificationResponse{
+			Success: false,
+			Message: "请求体格式错误: " + err.Error(),
+		})
+	}
+
+	if rand.Intn(6) == 3 {
+		// 模拟：随机失败，比如服务繁忙、打印队列满、临时故障等
+		return c.JSON(http.StatusInternalServerError, PrintNotificationResponse{
+			Success: false,
+			Message: "内部服务繁忙，打印通知处理失败（模拟随机失败）",
+		})
+	}
+	log.Printf("[INFO] 收到打印通知 - orderNo: %s, printTime: %s, notifyCount: %d",
+		req.OrderNo, req.PrintTime, req.NotifyCount)
+
+	return c.JSON(http.StatusOK, PrintNotificationResponse{
+		Success: true,
+		Message: "通知已记录",
+	})
+}
+
 func getAPIKey(c echo.Context) string {
 	key := c.Request().Header.Get("api_key")
 	if len(key) == 0 {
@@ -96,19 +134,26 @@ func main() {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Gzip())
 
-	e.Static("/api/swagger.yaml", "api/swagger.yaml")
+	e.GET("/api/swagger.yaml", func(c echo.Context) error {
+		return c.File("api/swagger.yaml")
+	})
+
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "投注单打印通知服务已启动")
+	})
 
 	g := e.Group("/api/v1", apiKeyCheck)
 	// Routes
 	g.GET("/code", getCode)
 	g.GET("/code/:id", getCodeByID)
+	g.POST("/code/print-notification", handlePrintNotification)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":2015"))
 }
 
 func init() {
-	randCode(30)
+	randCode(99)
 }
 func randCode(n int) {
 	var id int
@@ -149,7 +194,7 @@ var (
 		{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50},
 		{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50},
 		{1},
-		{1},
+		{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20},
 		{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20},
 		{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99},
 		{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99},

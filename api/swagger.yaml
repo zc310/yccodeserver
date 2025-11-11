@@ -3,7 +3,7 @@ info:
   description: "测试环境需要`header`设置 `api_key` = `special-key` 来进行安全认证.\n\nJSON中汉字转义后输出，如`汉字` 输出`\"\\u6c49\\u5b57\"`\n\n\n测试服务端Go代码:github.com/zc310/yccodeserver"
   version: "1.0.0"
   title: "号码导入接口"
-  termsOfService: "http://www.82608000.com/"
+  termsOfService: "https://www.82608000.com/"
   contact:
     email: "93672020@qq.com"
 
@@ -67,6 +67,26 @@ paths:
 
       security:
         - api_key: []
+  /code/print-notification:
+    post:
+      summary: 提交打印完成通知
+      description: 接收一个投注单的打印完成通知，进行记录和后续处理。支持多次重试机制。
+      parameters:
+        - in: body
+          name: body
+          description: 打印通知请求数据
+          required: true
+          schema:
+            $ref: '#/definitions/PrintNotificationRequest'
+      responses:
+        '200':
+          description: 通知处理结果
+          schema:
+            $ref: '#/definitions/PrintNotificationResponse'
+        401:
+          description: "API key 无效"
+        404:
+          description: "方案未找到"
 
 securityDefinitions:
 
@@ -121,7 +141,37 @@ definitions:
       - 排列5
       - 大乐透
       - 七星彩
+  PrintNotificationRequest:
+    type: object
+    properties:
+      orderNo:
+        type: string
+        description: 投注单编号
+        example: TZD123456789
+      printTime:
+        type: string
+        description: 打印时间，推荐使用 ISO8601 格式，如 "2024-06-01T14:30:00+08:00"
+        example: "2024-06-01T14:30:00+08:00"
+      notifyCount:
+        type: integer
+        description: 当前通知次数，从 1 开始
+        example: 1
+    required:
+      - orderNo
+      - printTime
+      - notifyCount
 
+  PrintNotificationResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+        description: 是否处理成功
+        example: true
+      message:
+        type: string
+        description: 处理结果描述信息
+        example: "通知已记录"
 externalDocs:
   description: "查看更多信息"
   url: "http://www.82608000.com"
